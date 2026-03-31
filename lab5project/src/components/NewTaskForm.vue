@@ -1,10 +1,10 @@
 <template>
   <div id="new-task-form">
-
+  
     <!-- TODO: Add a submit event handler attribute to handle the form submission -->
     <!-- HINT: Remember to pass in the form data to the method so it can pass it to your API -->
     <!-- HINT: Also, you can add .prevent to the end of the attribute's key to keep the page from reloading -->
-    <v-form>
+    <v-form @submit.prevent="createTask(form)">
 
       <v-container>
         <v-row>
@@ -12,20 +12,21 @@
           <v-col cols="12" xs="12" sm="6">
 
             <!-- TODO: Bind this input to the Text property value of the form prop -->
-            <v-text-field label="Add a task..." prepend-icon="edit" required></v-text-field>
+            <v-text-field label="Add a task..." prepend-icon="edit" required v-model="form.Text"></v-text-field>
+            
 
           </v-col>
           <v-col cols="12" xs="12" sm="4">
             <v-menu v-model="menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
-              <template v-slot:activator="{ on }">
+              <template #activator="{props}">
 
                 <!-- TODO: Bind this input to the Date property value of the form prop -->
-                <v-text-field label="When should the task be done?" prepend-icon="event" v-on="on"></v-text-field>
+                <v-text-field label="When should the task be done?" prepend-icon="event" v-bind="props" v-model="form.Date"></v-text-field>
 
               </template>
 
               <!-- TODO: Also bind this input to the Date property value of the form prop -->
-              <v-date-picker @input="menu = false"></v-date-picker>
+              <v-date-picker  v-model="form.Date" @update:model-value="menu = false"></v-date-picker>
 
             </v-menu>
           </v-col>
@@ -42,13 +43,24 @@
 </template>
 
 <script>
-import { getCurrentDate, formatDate } from '@/util'
 export default {
   name: 'NewTaskForm',
   props: {
     // TODO: Figure out any props that you'll need from this component's parent and add it/them here
     // Remember to add the prop as an attribute to this component's html tag
+    form: {
+      type: Object,
+      default: () => ({
+        Text: '',
+        Date: ''
+      })
+    },
+    createTask:{
+    type: Function,
+    default: () =>{}
   },
+  },
+  
   data: () => ({
     menu: false,
   }),

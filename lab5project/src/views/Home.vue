@@ -4,14 +4,21 @@
 
       <!-- TODO: Add your NewTaskForm component -->
       <!-- Make sure to pass in any necessary props -->
+      <new-task-form :form="form" :createTask="createTask"/>
 
       <v-divider></v-divider>
       <v-list subheader two-line flat>
         <v-list-subheader>
 
-          <!-- TODO: use the `user` prop to display the user's username here -->'s Tasks:
-
+          <!-- TODO: use the `user` prop to display the user's username here -->{{user.userName}}'s Tasks:
+          
         </v-list-subheader>
+
+        <task-list 
+        :tasks="tasks"
+        :update-task="updateTask"
+        :delete-task="deleteTask"
+        />
 
         <!-- TODO: Add your TaskList component -->
         <!-- Make sure to pass in any necessary props -->
@@ -24,13 +31,25 @@
 <script>
 import { getCurrentDate, formatDate } from '@/util'
 // TODO: Import the components you want to use from their files
+import NewTaskForm from '@/components/NewTaskForm.vue';
+import TaskList from '@/components/TaskList.vue';
+
 export default {
   name: 'Home',
   components: {
     // TODO: Use the Vue Documentation to find out how to use this property
+    NewTaskForm,
+    TaskList
   },
   props: {
     // TODO: Add the user object as a prop that's passed in from the App.vue component
+    user: {
+      type: Object,
+      default: () => ({
+      userName: ''
+    })
+      
+    }
   },
   data: () => ({
     fetched: false, // This keeps us from getting an error when the page loads, but there's no data
@@ -39,22 +58,82 @@ export default {
       // TODO: Add 2 properties to this form data object to track the Text and the Date
       // HINT: Capitalize the "Text" and "Date" properties to make it easier to pass the data to your API
       // HINT: You can use the `getCurrentDate()` method to get today's date in the proper format for the date picker
+      Text: '',
+      Date: ''
     },
   }),
   mounted() {
     // TODO: Call the method that gets the tasks from your API
+    this.readTasks()
   },
   methods: {
-    createTask(form) {
-      // TODO: Use fetch() to send a POST request to your API that includes the data from this.form
+      createTask(form) {
+      fetch(`${process.env.VUE_APP_API_ORIGIN}/api/v1/tasks`, {
+
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: form.Text,
+          date: form.Date
+        })
+      }).then(response => {
+        if (response.ok) {
+          this.readTasks()
+          this.form = {
+            Text: '',
+            Date: getCurrentDate(),
+          }
+        }
+      })
+    },
+
       // TODO: Remember to get the updated task list when it's done
       // TODO: Remember to reset the values in this.form to their initial values when it's done
-    },
     readTasks() {
-      // TODO: Use fetch() to send a GET request to your API and update this.fetched and this.tasks with the data that's returned
+      fetch(`${process.env.VUE_APP_API_ORIGIN}/api/v1/tasks`, {
+        method: 'GET',
+        credentials: 'include'
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          }
+        })
+        .then(data => {
+          if (data) {
+            this.tasks = data.map(task => ({
+              ...task,
+              Text: task.text,
+              Date: formatDate(task.date),
+              Done: task.done
+            }))
+            this.fetched = true
+          }
+        })
     },
+
     updateTask(task) {
       // TODO: Use fetch() to send a PUT request to your API to update an task to be Done/not Done.
+      fetch(
+        `${process.env.VUE_APP_API_ORIGIN}/api/v1/tasks/${task._id}`,
+
+        {
+          method: `PUT`,
+          credentials: `include`,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body:JSON.stringify({
+            done: !task.done
+          })
+        }).then(response =>{
+          if(response.ok){
+            this.readTasks()
+          }
+        })
       // TODO: Remember that the task's ID should be included in the path of the request, i.e. http://yourserverurl/api/v1/tasks/2r984hfiwufw948feoi
       // TODO: Remember to get the updated task list when it's done
     },
