@@ -18,17 +18,11 @@
           </v-col>
           <v-col cols="12" xs="12" sm="4">
             <v-menu v-model="menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
-              <template #activator="{props}">
-
-                <!-- TODO: Bind this input to the Date property value of the form prop -->
-                <v-text-field label="When should the task be done?" prepend-icon="event" v-bind="props" v-model="form.Date"></v-text-field>
-
-              </template>
-
-              <!-- TODO: Also bind this input to the Date property value of the form prop -->
-              <v-date-picker  v-model="form.Date" @update:model-value="menu = false"></v-date-picker>
-
-            </v-menu>
+    <template #activator="{ props }">
+        <v-text-field label="When should the task be done?" prepend-icon="event" v-model="form.Date" v-bind="props" readonly></v-text-field>
+    </template>
+    <v-date-picker v-model="form.Date" @update:model-value="handleDate"></v-date-picker>
+</v-menu>
           </v-col>
           <v-col cols="12" xs="4" offset-xs="4" sm="2">
             <v-btn class="mt-3" type="submit" text color="success" block>
@@ -43,6 +37,8 @@
 </template>
 
 <script>
+import { getCurrentDate, formatDate } from '@/util'
+
 export default {
   name: 'NewTaskForm',
   props: {
@@ -64,8 +60,16 @@ export default {
   data: () => ({
     menu: false,
   }),
+
+methods: {
+  handleDate(value) {
+    this.form.Date = formatDate(value)
+    this.menu = false
+  }
+}
 }
 </script>
+
 
 <style scoped>
 form {

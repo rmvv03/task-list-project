@@ -1,13 +1,13 @@
 <template>
   <div class="home">
-    <v-card class="mx-auto" max-width="900" v-if="fetched">
+    <v-card class="mx-auto" max-width="900" >
 
       <!-- TODO: Add your NewTaskForm component -->
       <!-- Make sure to pass in any necessary props -->
       <new-task-form :form="form" :createTask="createTask"/>
 
       <v-divider></v-divider>
-      <v-list subheader two-line flat>
+      <v-list subheader two-line flat >
         <v-list-subheader>
 
           <!-- TODO: use the `user` prop to display the user's username here -->{{user.userName}}'s Tasks:
@@ -84,7 +84,7 @@ export default {
           this.readTasks()
           this.form = {
             Text: '',
-            Date: getCurrentDate(),
+            Date: ''
           }
         }
       })
@@ -107,11 +107,14 @@ export default {
             this.tasks = data.map(task => ({
               ...task,
               Text: task.text,
-              Date: formatDate(task.date),
+              Date: task.date,
               Done: task.done
             }))
+          }else{
+              this.tasks = []
+            }
             this.fetched = true
-          }
+          
         })
     },
 

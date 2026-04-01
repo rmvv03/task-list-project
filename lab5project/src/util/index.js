@@ -29,7 +29,7 @@ export const getCurrentDate = () => {
 
 export const formatDate = date => {
   const d = new Date(date)
-  return `${d.getFullYear()}-${leadingZero(d.getMonth() + 1)}-${leadingZero(d.getDate())}`
+  return `${d.getFullYear()}-${leadingZero(d.getMonth() +1)}-${leadingZero(d.getDate())}`
 }
 
 // Adds a 0 before 1 digit numbers
