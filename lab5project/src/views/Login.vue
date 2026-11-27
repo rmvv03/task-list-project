@@ -16,11 +16,9 @@ export default {
   }),
   computed: {
     googleAuthHref() {
-      const origin =
-        typeof window !== 'undefined'
-          ? window.location.origin
-          : ''
-      return `${this.apiOrigin}/api/v1/auth/google?returnTo=${encodeURIComponent(origin)}`
+      // Include BASE_URL so we come back to /<repo-name>/ on GitHub Pages
+      const returnTo = `${window.location.origin}${process.env.BASE_URL}`
+      return `${this.apiOrigin}/api/v1/auth/google?returnTo=${encodeURIComponent(returnTo)}`
     }
   }
 }

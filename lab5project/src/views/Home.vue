@@ -1,48 +1,37 @@
 <template>
   <div class="home">
     <v-card class="mx-auto" max-width="900" >
-
-      <!-- TODO: Add your NewTaskForm component -->
-      <!-- Make sure to pass in any necessary props -->
       <new-task-form :form="form" :createTask="createTask"/>
-
       <v-divider></v-divider>
       <v-list subheader two-line flat >
         <v-list-subheader>
 
-          <!-- TODO: use the `user` prop to display the user's username here -->{{user.userName}}'s Tasks:
+          <!-- Uses the `user` prop to display the user's username -->{{user.userName}}'s Tasks:
           
         </v-list-subheader>
-
+        <!-- Passes the task-list component with props -->
         <task-list 
         :tasks="tasks"
         :update-task="updateTask"
         :delete-task="deleteTask"
         />
-
-        <!-- TODO: Add your TaskList component -->
-        <!-- Make sure to pass in any necessary props -->
-
       </v-list>
     </v-card>
   </div>
 </template>
 
 <script>
-import { getCurrentDate, formatDate } from '@/util'
-// TODO: Import the components you want to use from their files
 import NewTaskForm from '@/components/NewTaskForm.vue';
 import TaskList from '@/components/TaskList.vue';
 
 export default {
   name: 'Home',
   components: {
-    // TODO: Use the Vue Documentation to find out how to use this property
     NewTaskForm,
     TaskList
   },
   props: {
-    // TODO: Add the user object as a prop that's passed in from the App.vue component
+    // Adds the user object as a prop that's passed in from the App.vue component
     user: {
       type: Object,
       default: () => ({
@@ -53,20 +42,21 @@ export default {
   },
   data: () => ({
     fetched: false, // This keeps us from getting an error when the page loads, but there's no data
-    tasks: [], // This will hold the list of tasks you get from your API
+    tasks: [], // This will hold the list of tasks you get from the API
     form: {
-      // TODO: Add 2 properties to this form data object to track the Text and the Date
-      // HINT: Capitalize the "Text" and "Date" properties to make it easier to pass the data to your API
-      // HINT: You can use the `getCurrentDate()` method to get today's date in the proper format for the date picker
       Text: '',
       Date: ''
     },
   }),
   mounted() {
-    // TODO: Call the method that gets the tasks from your API
+    // Calls the method that gets the tasks from the API
     this.readTasks()
   },
   methods: {
+      // Sends a POST request to create a new task and refreshes the task list
+      // Sends POST request containing the appropriate authorization credentials and the form’s data in JSON syntax.
+      // Resets form to default values.
+      // Refreshes task list
       createTask(form) {
       fetch(`${process.env.VUE_APP_API_ORIGIN}/api/v1/tasks`, {
 
@@ -90,8 +80,10 @@ export default {
       })
     },
 
-      // TODO: Remember to get the updated task list when it's done
-      // TODO: Remember to reset the values in this.form to their initial values when it's done
+    // Retrieves all tasks for the authenticated user and updates UI
+    // Sends GET request containing the appropriate authorization credentials.
+    // Maps API data (text, date, done) to UI syntax to be displayed.
+    // Updates tasks
     readTasks() {
       fetch(`${process.env.VUE_APP_API_ORIGIN}/api/v1/tasks`, {
         method: 'GET',
@@ -118,6 +110,9 @@ export default {
         })
     },
 
+    // Toggles task completion status via PUT request
+    // Sends PUT request including the appropriate authorization credentials, and the done status in JSON notation.
+    // The fetch() uses the task id to update the data in the database too.
     updateTask(task) {
       // TODO: Use fetch() to send a PUT request to your API to update an task to be Done/not Done.
       fetch(
@@ -137,27 +132,21 @@ export default {
             this.readTasks()
           }
         })
-      // TODO: Remember that the task's ID should be included in the path of the request, i.e. http://yourserverurl/api/v1/tasks/2r984hfiwufw948feoi
-      // TODO: Remember to get the updated task list when it's done
     },
-    // This method is given to you. Use it to see how to make fetch() requests.
+
+    // Deletes a task via DELETE request
+    // Sends DELETE request including the appropriate authorization credentials.
+    // The fetch() uses the task id to delete the data in the database too.
+    // Refreshes tasks
     deleteTask(task) {
       fetch(
-        // The first parameter is a string that contains the full URL to your endpoint
         `${process.env.VUE_APP_API_ORIGIN}/api/v1/tasks/${task._id}`,
-        // The second parameter is an object with options. You can include request
-        // headers here, options for credentials, which method, which mode, etc.
         {
           method: `DELETE`,
           credentials: `include`,
         }
-        // Note: The default for method is GET, so you don't need to include the
-        // method on any GET requests.
       ).then(response => {
-        // Here we're just checking if the response was successful or not before
-        // trying to do anything about it.
         if (response.ok) {
-          // If it is successful, we want to update the task list.
           this.readTasks()
         }
       })

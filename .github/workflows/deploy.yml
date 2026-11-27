@@ -1,0 +1,70 @@
+# Builds the Vue frontend and publishes it to GitHub Pages on every push to main.
+#
+# One-time setup in the GitHub repo:
+#   1. Settings > Pages > Source: "GitHub Actions"
+#   2. Settings > Secrets and variables > Actions > Variables tab:
+#        API_ORIGIN = https://<your-backend-host>   (no trailing slash)
+name: Deploy frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lab5project
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: lab5project/package-lock.json
+
+      - run: npm ci
+
+      - name: Build
+        env:
+          VUE_APP_API_ORIGIN: ${{ vars.API_ORIGIN }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          if [ -z "$VUE_APP_API_ORIGIN" ]; then
+            echo "::error::Set the API_ORIGIN repository variable to your backend URL"; exit 1
+          fi
+          # <user>.github.io repos are served from the root; others from /<repo>/
+          case "$REPO_NAME" in
+            *.github.io) export PUBLIC_PATH=/ ;;
+            *)           export PUBLIC_PATH="/$REPO_NAME/" ;;
+          esac
+          npm run build
+          # GitHub Pages has no SPA rewrites; serving index.html as the 404
+          # page lets Vue Router handle deep links like /login on refresh.
+          cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: lab5project/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

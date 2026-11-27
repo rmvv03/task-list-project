@@ -2,32 +2,31 @@
  
   <div id='task-list'>
     <v-list>
-      <!-- TODO: Add a v-for attribute on this tag -->
-      <!-- Remember to use the :key attribute to define a key for each task! -->
+       <!-- This v-for attribute allows the tasks to be displayed one by one, and to be assigned a task id -->
       <v-list-item v-for="task in tasks" :key="task._id">
 
           <template v-slot:prepend>
-            <!-- TODO: Add a click event handler attribute here that updates an task -->
+            <!-- click event handler attribute that updates a task -->
             <v-btn variant="text" @click="updateTask(task)">
-            <!-- TODO: Add a v-if and v-else check here based on the current task's Done property -->
+            <!-- Shows different icons (checked or not checked box) according to 'done' status -->
             <v-icon v-if="task.Done">mdi-checkbox-marked</v-icon>
             <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
             </v-btn>
           </template>
 
           <v-list-item-title>
-            <!-- TODO: Show the value of the task's Text property here -->
+            <!-- Shows the value of the task's Text property -->
              {{ task.Text }}
           
 
           </v-list-item-title>
           <v-list-item-subtitle>
-            <!-- TODO: Show the value of the task's Date property here -->
+            <!-- Shows the value of the task's Date property -->
           {{ task.Date }}
 
           </v-list-item-subtitle>
           <template v-slot:append>
-            <!-- TODO: Add a click event handler attribute here that deletes this task -->
+            <!-- Click event handler attribute that deletes the task -->
             <v-btn icon="mdi-trash-can" color="red" variant="text" @click="deleteTask(task)">
             </v-btn>
           </template>
@@ -41,18 +40,17 @@
 export default {
   name: 'TaskList',
   props: {
-    
-    // TODO: Figure out what you need to bring in from props, then and then add those variables here
-    // Make sure to include these props on the component's tag when using it in another file
-    // HINT: For the tasks prop, set the default value to:
+    // Prop set as an empty array by default.
     tasks: {
       type: Array,
       default: () => []
       },
+      // Prop set as an empty function by default.
       updateTask: {
         type: Function,
         default: () => {}
       },
+      // Prop set as an empty function by default.
       deleteTask: {
         type: Function,
         default: () => {}
